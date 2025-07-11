@@ -44,18 +44,7 @@ function showError(message) {
     setTimeout(() => errorDiv.remove(), 5000);
 }
 
-async function me(params) {
-    const response = await fetch(`${API_BASE_URL}/user/me`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        }
-    });
 
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    user = await response.json();
-}
 
 async function fetchRoomData() {
     try {
@@ -87,6 +76,23 @@ const sendMessageBtn = document.getElementById('sendMessageBtn');
 const connectionStatus = document.getElementById('connectionStatus');
 const statusIndicator = document.getElementById('statusIndicator');
 const typingIndicator = document.getElementById('typingIndicator');
+const userData = document.getElementById('userData');
+
+
+async function me() {
+    const response = await fetch(`${API_BASE_URL}/user/me`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    user = await response.json();
+    userData.innerHTML = user.name + " " + user.email;
+}
+
 
 // Render messages
 function renderMessages(messages) {
@@ -100,7 +106,7 @@ function renderMessages(messages) {
         const messageBubble = document.createElement('div');
         messageBubble.classList.add('message-bubble');
 
-        const isSentByCurrentUser = message.sender._id === user.id;
+        const isSentByCurrentUser = message.sender._id === user._id;
         messageBubble.classList.add(isSentByCurrentUser ? 'message-sent' : 'message-received');
 
         if (!isSentByCurrentUser) {
@@ -146,6 +152,7 @@ messageInput.addEventListener('keypress', (e) => {
 socket.on('connect', () => {
     console.log('Connected to server');
     updateConnectionStatus('Connected', '#4CAF50');
+    joinRoom()
 });
 
 socket.on('disconnect', () => {
@@ -164,6 +171,8 @@ socket.on('message', (data) => {
 });
 
 socket.on('roomMessage', (data) => {
+    console.log(5555555);
+
     addRoomMessage(data, data.userId === socket.id);
 });
 
@@ -171,6 +180,10 @@ socket.on('roomMessage', (data) => {
 socket.on('userTyping', (data) => {
     handleTypingIndicator(data);
 });
+
+function joinRoom() {
+    socket.emit('joinRoom', roomId);
+}
 
 function leaveChat() {
     socket.disconnect();
@@ -184,7 +197,7 @@ function sendMessage() {
     socket.emit('roomMessage', {
         content: message,
         room: roomId,
-        sender: user.id
+        sender: user._id
     });
 
 
@@ -221,7 +234,7 @@ function addRoomMessage(data, isOwnMessage) {
 function handleTypingIndicator(data) {
     const typingId = `typing-${data.userId}`;
     let typingElement = document.getElementById(typingId);
-    console.log('handleTypingIndicator', data);
+
     if (data.isTyping) {
         if (!typingElement) {
             typingElement = document.createElement('div');
