@@ -1,5 +1,8 @@
 const API_BASE_URL = 'http://localhost:5000/api';
 
+const urlParams = new URLSearchParams(window.location.search);
+const returnedURL = urlParams.get('returned');
+
 document.addEventListener('DOMContentLoaded', function () {
     const authHeader = document.getElementById('authHeader');
     const authForm = document.getElementById('authForm');
@@ -87,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function () {
             showMessage(result.message, 'success');
             localStorage.setItem('token', result.token); // Store token in localStorage
             // In a real app, redirect to chat page or dashboard
-            window.location.href = '/';
+            window.location.href = returnedURL || '/chat.html'; // Redirect to chat page or dashboard
         } else {
             showMessage(result.message, 'error');
         }

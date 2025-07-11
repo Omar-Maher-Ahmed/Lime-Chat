@@ -68,6 +68,28 @@ header {
     color: white;
 }
 
+.logout-button {
+    background-color: #e74c3c;
+    /* Red color for logout */
+    color: white;
+    padding: 15px 30px;
+    border-radius: 15px;
+    /* Rounded button */
+    border: none;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.logout-button:hover {
+    background-color: #c0392b;
+    /* Darker red on hover */
+    transform: translateY(-2px);
+    /* Slight lift effect */
+}
+
 /* Main Content */
 .main-content {
     padding: 2rem 0;

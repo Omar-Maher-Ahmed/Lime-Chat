@@ -7,17 +7,28 @@
         <link rel="stylesheet" href="css/start-chat.css">
     </head>
     <body>
+
         <header>
             <div class="container">
                 <div class="header-content">
-                    <a href="#" class="logo">Lime Chat</a>
+                    <a href="/" class="logo">Lime Chat</a>
                     <div class="user-profile">
-                        <span>Welcome back, Alex!</span>
+                        <span>Welcome back, <span
+                                id="userName">Alex!</span></span>
                         <div class="profile-pic">A</div>
+                        <button id="logoutBtn" class="logout-button">Log
+                            Out</button>
                     </div>
                 </div>
             </div>
         </header>
+
+        <script>
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login.html?returned=chat.html';
+            }
+        </script>
 
         <main class="main-content">
             <div class="container">
@@ -69,6 +80,8 @@
                 </div>
             </div>
         </main>
+        <script
+            src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
 
         <script src="js/start-chat.js"></script>
     </body>

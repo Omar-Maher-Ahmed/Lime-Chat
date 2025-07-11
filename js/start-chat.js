@@ -1,160 +1,10 @@
 const API_BASE_URL = 'http://localhost:5000/api';
 
-const token = localStorage.getItem("token")
-
-const roomsData = {
-    groupRooms: [
-        {
-            id: 1,
-            name: "🎮 Gaming Hub",
-            description: "Discuss the latest games, share tips, and find gaming buddies",
-            members: 2847,
-            type: "group",
-            active: true,
-            lastActivity: "2 min ago",
-            avatars: ["G", "M", "K", "J"]
-        },
-        {
-            id: 2,
-            name: "📚 Book Club",
-            description: "Monthly book discussions and reading recommendations",
-            members: 1234,
-            type: "group",
-            active: true,
-            lastActivity: "5 min ago",
-            avatars: ["B", "L", "R", "S"]
-        },
-        {
-            id: 3,
-            name: "🍳 Food & Recipes",
-            description: "Share your favorite recipes and cooking adventures",
-            members: 5621,
-            type: "group",
-            active: true,
-            lastActivity: "1 min ago",
-            avatars: ["F", "C", "T", "D"]
-        },
-        {
-            id: 4,
-            name: "🎵 Music Lovers",
-            description: "Discover new music and discuss your favorite artists",
-            members: 3456,
-            type: "group",
-            active: false,
-            lastActivity: "1 hour ago",
-            avatars: ["M", "A", "N", "P"]
-        },
-        {
-            id: 5,
-            name: "🏃‍♂️ Fitness & Health",
-            description: "Workout tips, nutrition advice, and motivation",
-            members: 2198,
-            type: "group",
-            active: true,
-            lastActivity: "8 min ago",
-            avatars: ["H", "F", "W", "Y"]
-        },
-        {
-            id: 6,
-            name: "💼 Tech Talk",
-            description: "Latest tech news, programming discussions, and career advice",
-            members: 4567,
-            type: "group",
-            active: true,
-            lastActivity: "3 min ago",
-            avatars: ["T", "E", "C", "H"]
-        },
-        {
-            id: 7,
-            name: "🎨 Creative Corner",
-            description: "Share your art, get feedback, and collaborate on projects",
-            members: 1876,
-            type: "group",
-            active: false,
-            lastActivity: "2 hours ago",
-            avatars: ["A", "R", "T", "I"]
-        },
-        {
-            id: 8,
-            name: "🌍 Travel Tales",
-            description: "Share travel stories, tips, and plan adventures together",
-            members: 3210,
-            type: "group",
-            active: true,
-            lastActivity: "12 min ago",
-            avatars: ["T", "R", "V", "L"]
-        }
-    ],
-    personalChats: [
-        {
-            id: 9,
-            name: "👨‍👩‍👧‍👦 Family Group",
-            description: "Stay connected with family members",
-            members: 8,
-            type: "personal",
-            active: true,
-            lastActivity: "Just now",
-            avatars: ["M", "D", "S", "B"]
-        },
-        {
-            id: 10,
-            name: "💼 Work Team",
-            description: "Project discussions and team updates",
-            members: 12,
-            type: "personal",
-            active: true,
-            lastActivity: "4 min ago",
-            avatars: ["W", "T", "P", "L"]
-        },
-        {
-            id: 11,
-            name: "🎓 Study Group",
-            description: "Exam prep and assignment help",
-            members: 6,
-            type: "personal",
-            active: false,
-            lastActivity: "30 min ago",
-            avatars: ["S", "T", "U", "D"]
-        },
-        {
-            id: 12,
-            name: "🏠 Roommates",
-            description: "House coordination and social chat",
-            members: 4,
-            type: "personal",
-            active: true,
-            lastActivity: "7 min ago",
-            avatars: ["R", "O", "O", "M"]
-        },
-        {
-            id: 13,
-            name: "🎉 Party Planning",
-            description: "Organizing the birthday surprise",
-            members: 15,
-            type: "personal",
-            active: true,
-            lastActivity: "2 min ago",
-            avatars: ["P", "A", "R", "T"]
-        },
-        {
-            id: 14,
-            name: "⚽ Soccer Squad",
-            description: "Weekend game coordination",
-            members: 11,
-            type: "personal",
-            active: false,
-            lastActivity: "1 hour ago",
-            avatars: ["S", "O", "C", "R"]
-        }
-    ]
-};
-
-// let allRooms = [...roomsData.groupRooms, ...roomsData.personalChats];
-// let filteredRooms = allRooms;
+// const token = localStorage.getItem("token")
 
 let allRooms = [];
 let filteredRooms = [];
-let currentUser = null;
+let user = {};
 
 const loadingSection = document.getElementById('loadingSection');
 const roomsContainer = document.getElementById('roomsContainer');
@@ -162,6 +12,19 @@ const searchInput = document.getElementById('searchInput');
 const filterButtons = document.querySelectorAll('.filter-btn');
 const groupRoomsGrid = document.getElementById('groupRoomsGrid');
 const personalChatsGrid = document.getElementById('personalChatsGrid');
+const logoutBtn = document.getElementById('logoutBtn');
+const userName = document.getElementById("userName")
+
+if (token) {
+    try {
+        const userData = jwt_decode(token);
+        user = userData;
+        console.log('User data:', userData);
+        userName.textContent = userData.name;
+    } catch (error) {
+        console.error('Error decoding token:', error);
+    }
+}
 
 async function fetchRooms() {
     try {
@@ -614,7 +477,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initApp();
 });
 
-// Auto-refresh rooms every 30 seconds
-// setInterval(() => {
-//     initApp();
-// }, 30000);
+logoutBtn.addEventListener('click', function () {
+    localStorage.removeItem('token');
+    logoutBtn.disabled = true;
+    window.location.href = '/';
+})
