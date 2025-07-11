@@ -48,6 +48,23 @@
             border-top-right-radius: 20px;
         }
 
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4CAF50;
+            margin-right: 5px;
+        }
+
+         .typing-indicator {
+            font-style: italic;
+            color: #666;
+            padding: 5px 15px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            margin-bottom: 10px;
+        }
+
         .chat-messages {
             flex-grow: 1; /* Allows messages area to take available space */
             padding: 20px;
@@ -155,6 +172,8 @@
             <div class="chat-header">
                 <h2 id="roomName" class="text-2xl font-bold">Loading
                     Room...</h2>
+                <div class="status-indicator" id="statusIndicator"></div>
+                <span id="connectionStatus">Disconnected</span>
                 <p id="roomParticipants" class="text-sm text-gray-300 mt-1"></p>
             </div>
 
@@ -164,9 +183,14 @@
                     messages...</div>
             </div>
 
+            <div class="text-center text-gray-400 mt-4" id="typingIndicator"
+                style="display: none;">
+            </div>
+
             <div class="chat-input-area">
                 <input type="text" id="messageInput" class="chat-input"
-                    placeholder="Type your message...">
+                    placeholder="Type your message..."
+                    onkeypress="handleKeyPress(event)">
                 <button id="sendMessageBtn" class="send-button">
                     <i class="fas fa-paper-plane mr-2"></i> Send
                 </button>
@@ -174,6 +198,8 @@
         </div>
         <script
             src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
 
         <script src="./js/rooms.js"></script>
     </body>

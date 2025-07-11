@@ -1,22 +1,24 @@
 
 
 const API_BASE_URL = 'http://localhost:5000/api';
-const WS_BASE_URL = 'ws://localhost:5001'; // Your WebSocket server address
+const WS_BASE_URL = 'http://localhost:5001'; // Your WebSocket server address
 
-const socket = new WebSocket(WS_BASE_URL);
+const socket = io(WS_BASE_URL, {
+    autoConnect: true,
+    transports: ['websocket', 'polling']
+});
 
 const token = localStorage.getItem("token");
 let user = {};
 
 if (token) {
     try {
-        const userData = jwt_decode(token);
-        user = userData;
-        console.log('User data:', userData);
+        me()
     } catch (error) {
         console.error('Error decoding token:', error);
     }
 }
+
 
 const urlParams = new URLSearchParams(window.location.search);
 const roomId = urlParams.get('room');
@@ -42,6 +44,19 @@ function showError(message) {
     setTimeout(() => errorDiv.remove(), 5000);
 }
 
+async function me(params) {
+    const response = await fetch(`${API_BASE_URL}/user/me`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    user = await response.json();
+}
+
 async function fetchRoomData() {
     try {
         const response = await fetch(`${API_BASE_URL}/room/${roomId}`, {
@@ -60,82 +75,225 @@ async function fetchRoomData() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    const roomNameElement = document.getElementById('roomName');
-    const roomParticipantsElement = document.getElementById('roomParticipants');
-    const chatMessagesElement = document.getElementById('chatMessages');
-    const messageInput = document.getElementById('messageInput');
-    const sendMessageBtn = document.getElementById('sendMessageBtn');
+let typingTimer;
+let isTyping = false;
 
-    // Render messages
-    function renderMessages(messages) {
-        chatMessagesElement.innerHTML = '';
-        if (!messages || messages.length === 0) {
-            chatMessagesElement.innerHTML = '<div class="text-center text-gray-400 mt-4">No messages yet. Start the conversation!</div>';
-            return;
-        }
+// document.addEventListener('DOMContentLoaded', () => {
+const roomNameElement = document.getElementById('roomName');
+const roomParticipantsElement = document.getElementById('roomParticipants');
+const chatMessagesElement = document.getElementById('chatMessages');
+const messageInput = document.getElementById('messageInput');
+const sendMessageBtn = document.getElementById('sendMessageBtn');
+const connectionStatus = document.getElementById('connectionStatus');
+const statusIndicator = document.getElementById('statusIndicator');
+const typingIndicator = document.getElementById('typingIndicator');
 
-        messages.forEach(message => {
-            const messageBubble = document.createElement('div');
-            messageBubble.classList.add('message-bubble');
-
-            const isSentByCurrentUser = message.sender._id === user.id;
-            messageBubble.classList.add(isSentByCurrentUser ? 'message-sent' : 'message-received');
-
-            if (!isSentByCurrentUser) {
-                const senderName = document.createElement('div');
-                senderName.classList.add('message-sender-name');
-                senderName.textContent = message.sender.name;
-                messageBubble.appendChild(senderName);
-            }
-
-            const messageContent = document.createElement('div');
-            messageContent.textContent = message.content;
-            messageBubble.appendChild(messageContent);
-            chatMessagesElement.appendChild(messageBubble);
-        });
-
-        chatMessagesElement.scrollTop = chatMessagesElement.scrollHeight;
+// Render messages
+function renderMessages(messages) {
+    chatMessagesElement.innerHTML = '';
+    if (!messages || messages.length === 0) {
+        chatMessagesElement.innerHTML = '<div class="text-center text-gray-400 mt-4">No messages yet. Start the conversation!</div>';
+        return;
     }
 
-    async function loadRoomData() {
-        const roomData = await fetchRoomData();
-        mockBackendResponse = roomData;
+    messages.forEach(message => {
+        const messageBubble = document.createElement('div');
+        messageBubble.classList.add('message-bubble');
 
-        if (roomData) {
-            roomNameElement.textContent = roomData.name;
-            const participantNames = roomData.participants.map(p => p.name).join(', ');
-            roomParticipantsElement.textContent = `Participants: ${participantNames}`;
-            renderMessages(roomData.messages);
-        } else {
-            roomNameElement.textContent = 'Room Not Found';
-            roomParticipantsElement.textContent = 'Check room ID.';
-            chatMessagesElement.innerHTML = '<div class="text-center text-red-400 mt-4">Failed to load room data.</div>';
+        const isSentByCurrentUser = message.sender._id === user.id;
+        messageBubble.classList.add(isSentByCurrentUser ? 'message-sent' : 'message-received');
+
+        if (!isSentByCurrentUser) {
+            const senderName = document.createElement('div');
+            senderName.classList.add('message-sender-name');
+            senderName.textContent = message.sender.name;
+            messageBubble.appendChild(senderName);
+        }
+
+        const messageContent = document.createElement('div');
+        messageContent.textContent = message.content;
+        messageBubble.appendChild(messageContent);
+        chatMessagesElement.appendChild(messageBubble);
+    });
+
+    chatMessagesElement.scrollTop = chatMessagesElement.scrollHeight;
+}
+
+async function loadRoomData() {
+    const roomData = await fetchRoomData();
+    mockBackendResponse = roomData;
+
+    if (roomData) {
+        roomNameElement.textContent = roomData.name;
+        const participantNames = roomData.participants.map(p => p.name).join(', ');
+        roomParticipantsElement.textContent = `Participants: ${participantNames}`;
+        renderMessages(roomData.messages);
+    } else {
+        roomNameElement.textContent = 'Room Not Found';
+        roomParticipantsElement.textContent = 'Check room ID.';
+        chatMessagesElement.innerHTML = '<div class="text-center text-red-400 mt-4">Failed to load room data.</div>';
+    }
+}
+
+sendMessageBtn.addEventListener('click', () => {
+    sendMessage()
+});
+
+messageInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessageBtn.click();
+});
+
+socket.on('connect', () => {
+    console.log('Connected to server');
+    updateConnectionStatus('Connected', '#4CAF50');
+});
+
+socket.on('disconnect', () => {
+    console.log('Disconnected from server');
+    updateConnectionStatus('Disconnected', '#f44336');
+});
+
+socket.on('connect_error', (error) => {
+    console.error('Connection error:', error);
+    updateConnectionStatus('Connection Error', '#ff9800');
+});
+
+// Message events
+socket.on('message', (data) => {
+    addMessage(data, data.userId === socket.id);
+});
+
+socket.on('roomMessage', (data) => {
+    addRoomMessage(data, data.userId === socket.id);
+});
+
+// Typing events
+socket.on('userTyping', (data) => {
+    handleTypingIndicator(data);
+});
+
+function leaveChat() {
+    socket.disconnect();
+    window.location.href = '/chat.html';
+}
+
+function sendMessage() {
+    const message = messageInput.value.trim();
+    if (!message) return;
+
+    socket.emit('roomMessage', {
+        content: message,
+        room: roomId,
+        sender: user.id
+    });
+
+
+    messageInput.value = '';
+    stopTyping();
+}
+
+function addMessage(data, isOwnMessage) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isOwnMessage ? 'own' : 'other'}`;
+
+    messageDiv.innerHTML = `
+                <div class="message-header">${data.username} • ${formatTime(data.timestamp)}</div>
+                <div class="message-content">${escapeHtml(data.message)}</div>
+            `;
+
+    chatMessagesElement.appendChild(messageDiv);
+    scrollToBottom();
+}
+
+function addRoomMessage(data, isOwnMessage) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isOwnMessage ? 'own' : 'other'}`;
+
+    messageDiv.innerHTML = `
+                <div class="message-header">${data.username} in ${data.room} • ${formatTime(data.timestamp)}</div>
+                <div class="message-content">${escapeHtml(data.message)}</div>
+            `;
+
+    chatMessagesElement.appendChild(messageDiv);
+    scrollToBottom();
+}
+
+function handleTypingIndicator(data) {
+    const typingId = `typing-${data.userId}`;
+    let typingElement = document.getElementById(typingId);
+    console.log('handleTypingIndicator', data);
+    if (data.isTyping) {
+        if (!typingElement) {
+            typingElement = document.createElement('div');
+            typingElement.id = typingId;
+            typingElement.className = 'typing-indicator';
+            typingElement.textContent = `${data.username} is typing...`;
+            chatMessagesElement.appendChild(typingElement);
+            scrollToBottom();
+        }
+    } else {
+        if (typingElement) {
+            typingElement.remove();
         }
     }
+}
 
-    sendMessageBtn.addEventListener('click', () => {
-        const messageText = messageInput.value.trim();
-        if (messageText && socket.readyState === WebSocket.OPEN) {
-            const messageData = {
-                sender: user.id,
-                room: mockBackendResponse._id,
-                content: messageText,
-                type: "text",
-                token,
-            };
-            console.log('Sending message:', messageData);
-            socket.send(JSON.stringify(messageData));
-            messageInput.value = '';
-        }
-    });
+function scrollToBottom() {
+    chatMessagesElement.scrollTop = chatMessagesElement.scrollHeight;
+}
 
-    messageInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') sendMessageBtn.click();
-    });
+function formatTime(timestamp) {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
 
-    // Receive messages from server
-    socket.addEventListener('message', (event) => {
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function updateConnectionStatus(status, color) {
+    connectionStatus.textContent = status;
+    statusIndicator.style.backgroundColor = color;
+}
+
+function stopTyping() {
+    if (isTyping) {
+        isTyping = false;
+        socket.emit('typing', { isTyping: false, username: user.name });
+    }
+    typingIndicator.style.display = 'none';
+}
+
+
+
+
+loadRoomData();
+// });
+
+function handleKeyPress(event) {
+    if (event.key === 'Enter') {
+        sendMessage();
+    } else {
+        handleTyping();
+    }
+};
+
+function handleTyping() {
+    if (!isTyping) {
+        isTyping = true;
+        typingIndicator.style.display = 'block';
+        socket.emit('typing', { isTyping: true, username: user.name });
+    }
+
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(() => {
+        stopTyping();
+    }, 1000);
+}
+/*
+  socket.addEventListener('message', (event) => {
         try {
             const message = JSON.parse(event.data);
             if (message.room === roomId) {
@@ -161,5 +319,4 @@ document.addEventListener('DOMContentLoaded', () => {
         showError('Disconnected from chat server.');
     });
 
-    loadRoomData();
-});
+    */
