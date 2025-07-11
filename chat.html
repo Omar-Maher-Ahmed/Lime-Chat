@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Start Chat (Lime)</title>
+        <link rel="stylesheet" href="css/start-chat.css">
+    </head>
+    <body>
+        <header>
+            <div class="container">
+                <div class="header-content">
+                    <a href="#" class="logo">Lime Chat</a>
+                    <div class="user-profile">
+                        <span>Welcome back, Alex!</span>
+                        <div class="profile-pic">A</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container">
+                <div class="page-header">
+                    <h1>Start Chatting</h1>
+                    <p>Join existing conversations or create new ones</p>
+                </div>
+
+                <div class="search-filter-bar">
+                    <div class="search-controls">
+                        <div class="search-box">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="search-input"
+                                placeholder="Search rooms..." id="searchInput">
+                        </div>
+                        <div class="filter-buttons">
+                            <button class="filter-btn active"
+                                data-filter="all">All Rooms</button>
+                            <button class="filter-btn" data-filter="group">Group
+                                Chats</button>
+                            <button class="filter-btn"
+                                data-filter="personal">Personal</button>
+                            <button class="filter-btn"
+                                data-filter="active">Active Now</button>
+                        </div>
+                        <button class="create-room-btn">+ Create Room</button>
+                    </div>
+                </div>
+
+                <div id="loadingSection" class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading rooms...</p>
+                </div>
+
+                <div id="roomsContainer" style="display: none;">
+                    <div class="rooms-section" id="groupRooms">
+                        <h2 class="section-title">🏠 Group Rooms</h2>
+                        <div class="rooms-grid" id="groupRoomsGrid">
+                            <!-- Group rooms will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div class="rooms-section" id="personalChats">
+                        <h2 class="section-title">💬 Personal Chats</h2>
+                        <div class="rooms-grid" id="personalChatsGrid">
+                            <!-- Personal chats will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <script src="js/start-chat.js"></script>
+    </body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/css/login.css">
+        <title>Login / Signup</title>
+    </head>
+    <body>
+        <div class="auth-container">
+            <h2 id="authHeader" class="auth-header">Login</h2>
+
+            <form id="authForm">
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" class="auth-input"
+                        placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" class="auth-input"
+                        placeholder="Enter your password" required>
+                </div>
+                <button type="submit" id="authButton"
+                    class="auth-button">Login</button>
+            </form>
+
+            <div id="messageArea" class="message-area"></div>
+
+            <div class="toggle-link">
+                <span id="toggleText">Don't have an account?</span>
+                <a href="#" id="toggleAuthMode">Sign Up</a>
+            </div>
+        </div>
+
+        <script src="./js/login.js"></script>
+    </body>
+</html>

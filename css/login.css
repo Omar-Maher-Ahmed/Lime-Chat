@@ -1,0 +1,165 @@
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Using Inter font */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            /* Purple/blue gradient */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .auth-container {
+            background-color: rgba(255, 255, 255, 0.1);
+            /* Slightly transparent white for glass effect */
+            backdrop-filter: blur(10px);
+            /* Glassmorphism blur effect */
+            border-radius: 20px;
+            /* Rounded corners */
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            /* Stronger shadow */
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            /* Subtle border */
+            width: 100%;
+            max-width: 450px;
+            /* Max width for the form */
+            padding: 40px;
+            text-align: center;
+            color: #fff;
+            /* White text color */
+        }
+
+        .auth-header {
+            font-size: 2.2em;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            /* Subtle text shadow */
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 14px 20px;
+            border-radius: 15px;
+            /* Rounded input fields */
+            border: none;
+            background-color: rgba(255, 255, 255, 0.25);
+            /* Lighter background for input */
+            color: #fff;
+            outline: none;
+            /* Remove outline on focus */
+            font-size: 1em;
+            box-sizing: border-box;
+            /* Include padding in width */
+            transition: background-color 0.3s ease;
+        }
+
+        .auth-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .auth-input:focus {
+            background-color: rgba(255, 255, 255, 0.35);
+            /* Slightly darker on focus */
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 15px 20px;
+            border-radius: 15px;
+            /* Rounded button */
+            border: none;
+            background-color: #3498db;
+            /* Blue button */
+            color: white;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .auth-button:hover {
+            background-color: #2980b9;
+            /* Darker blue on hover */
+            transform: translateY(-2px);
+            /* Slight lift effect */
+        }
+
+        .toggle-link {
+            margin-top: 25px;
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .toggle-link a {
+            color: #2ecc71;
+            /* Green link color */
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .toggle-link a:hover {
+            color: #27ae60;
+            /* Darker green on hover */
+            text-decoration: underline;
+        }
+
+        .message-area {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: #fff;
+            display: none;
+            /* Hidden by default */
+        }
+
+        .message-area.success {
+            background-color: rgba(46, 204, 113, 0.2);
+            /* Green for success */
+            border: 1px solid #2ecc71;
+            display: block;
+        }
+
+        .message-area.error {
+            background-color: rgba(231, 76, 60, 0.2);
+            /* Red for error */
+            border: 1px solid #e74c3c;
+            display: block;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 500px) {
+            .auth-container {
+                padding: 30px 20px;
+                border-radius: 15px;
+            }
+
+            .auth-header {
+                font-size: 1.8em;
+                margin-bottom: 20px;
+            }
+
+            .auth-input,
+            .auth-button {
+                padding: 12px 15px;
+            }
+        }
