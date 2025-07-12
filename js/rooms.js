@@ -171,8 +171,6 @@ socket.on('message', (data) => {
 });
 
 socket.on('roomMessage', (data) => {
-    console.log(5555555);
-
     addRoomMessage(data, data.userId === socket.id);
 });
 
