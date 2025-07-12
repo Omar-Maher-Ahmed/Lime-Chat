@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Register</title>
+        <link  rel="stylesheet" href="/css/register.css">
+    </head>
+    <body>
+        <div class="register-container">
+            <div class="register-header">
+                <h1 class="register-title">Join Us</h1>
+                <p class="register-subtitle">Create your account to get
+                    started</p>
+            </div>
+
+            <div class="success-message" id="successMessage">
+                Account created successfully! Welcome aboard! 🎉
+            </div>
+
+            <form id="registerForm" class="register-form">
+                <div class="form-group">
+                    <label for="fullName" class="form-label">Full Name</label>
+                    <input type="text" id="fullName" name="fullName"
+                        class="form-input" required>
+                    <div class="error-message" id="fullNameError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input type="email" id="email" name="email"
+                        class="form-input" required>
+                    <div class="error-message" id="emailError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="password-container">
+                        <input type="password" id="password" name="password"
+                            class="form-input" required>
+                        <button type="button" class="password-toggle"
+                            id="passwordToggle">👁️</button>
+                    </div>
+                    <div class="error-message" id="passwordError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword" class="form-label">Confirm
+                        Password</label>
+                    <div class="password-container">
+                        <input type="password" id="confirmPassword"
+                            name="confirmPassword" class="form-input" required>
+                        <button type="button" class="password-toggle"
+                            id="confirmPasswordToggle">👁️</button>
+                    </div>
+                    <div class="error-message" id="confirmPasswordError"></div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="terms" name="terms"
+                        class="checkbox-input" required>
+                    <label for="terms" class="checkbox-label">
+                        I agree to the <a href="#" target="_blank">Terms of
+                            Service</a> and <a href="#" target="_blank">Privacy
+                            Policy</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="register-btn" id="registerBtn">
+                    <span class="btn-loading" id="btnLoading"></span>
+                    <span id="btnText">Create Account</span>
+                </button>
+            </form>
+
+            <div class="login-link">
+                Already have an account? <a href="/login.html">Sign in here</a>
+            </div>
+        </div>
+
+        <script src="/js/register.js"></script>
+    </html>
