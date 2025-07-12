@@ -1,7 +1,8 @@
 
 
-const API_BASE_URL = 'http://localhost:5000/api';
-const WS_BASE_URL = 'http://localhost:5001'; // Your WebSocket server address
+const API_BASE_URL = 'https://lime-chat-back-production.up.railway.app/api';
+const WS_BASE_URL = 'lime-chat-back-production-529d.up.railway.app';
+// const API_BASE_URL = 'http://localhost:5000/api';
 
 const socket = io(WS_BASE_URL, {
     autoConnect: true,
@@ -159,7 +160,7 @@ socket.on('disconnect', () => {
 });
 
 socket.on('connect_error', (error) => {
-    console.error('Connection error:', error);
+    console.error('Connection error:', { ...error });
     updateConnectionStatus('Connection Error', '#ff9800');
 });
 

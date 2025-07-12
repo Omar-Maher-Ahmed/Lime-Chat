@@ -1,5 +1,6 @@
-const API_BASE_URL = 'http://localhost:5000/api';
-
+// const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'https://lime-chat-back-production.up.railway.app/api';
+const WS_BASE_URL = 'https://lime-chat-back-production.up.railway.app/';
 // const token = localStorage.getItem("token")
 
 let allRooms = [];
@@ -43,7 +44,7 @@ async function fetchRooms() {
         const data = await response.json();
         return data;
     } catch (error) {
-        console.error('Error fetching rooms:', error);
+        console.error('Error fetching rooms:', { ...error });
         showError('Failed to load rooms. Please try again.');
         return [];
     }

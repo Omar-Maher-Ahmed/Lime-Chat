@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'https://lime-chat-back-production.up.railway.app/api';
 
 const urlParams = new URLSearchParams(window.location.search);
 const returnedURL = urlParams.get('returned');
