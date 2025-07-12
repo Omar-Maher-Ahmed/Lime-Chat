@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Register</title>
-        <link  rel="stylesheet" href="/css/register.css">
+        <link rel="stylesheet" href="/css/register.css">
     </head>
     <body>
         <div class="register-container">
@@ -17,18 +17,17 @@
             <div class="success-message" id="successMessage">
                 Account created successfully! Welcome aboard! 🎉
             </div>
-
             <form id="registerForm" class="register-form">
                 <div class="form-group">
                     <label for="fullName" class="form-label">Full Name</label>
-                    <input type="text" id="fullName" name="fullName"
+                    <input id="fullName" name="fullName" type="text"
                         class="form-input" required>
                     <div class="error-message" id="fullNameError"></div>
                 </div>
 
                 <div class="form-group">
                     <label for="email" class="form-label">Email Address</label>
-                    <input type="email" id="email" name="email"
+                    <input id="email" name="email" type="email"
                         class="form-input" required>
                     <div class="error-message" id="emailError"></div>
                 </div>
@@ -44,7 +43,7 @@
                     <div class="error-message" id="passwordError"></div>
                 </div>
 
-                <div class="form-group">
+                <!-- <div class="form-group">
                     <label for="confirmPassword" class="form-label">Confirm
                         Password</label>
                     <div class="password-container">
@@ -54,17 +53,19 @@
                             id="confirmPasswordToggle">👁️</button>
                     </div>
                     <div class="error-message" id="confirmPasswordError"></div>
-                </div>
+                </div> -->
 
-                <div class="checkbox-group">
+                <!-- <div class="checkbox-group">
                     <input type="checkbox" id="terms" name="terms"
                         class="checkbox-input" required>
                     <label for="terms" class="checkbox-label">
-                        I agree to the <a href="#" target="_blank">Terms of
-                            Service</a> and <a href="#" target="_blank">Privacy
+                        I agree to the <a href="#">Terms of
+                            Service</a> and <a href="#">Privacy
                             Policy</a>
                     </label>
-                </div>
+                </div> -->
+                <div id="server-error"
+                    class="text-red-600 font-medium mt-2"></div>
 
                 <button type="submit" class="register-btn" id="registerBtn">
                     <span class="btn-loading" id="btnLoading"></span>

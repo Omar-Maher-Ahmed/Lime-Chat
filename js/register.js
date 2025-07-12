@@ -4,29 +4,24 @@ const urlParams = new URLSearchParams(window.location.search);
 const returnedURL = urlParams.get('returned');
 
 document.addEventListener('DOMContentLoaded', function () {
-
     const form = document.getElementById('registerForm');
     const fullNameInput = document.getElementById('fullName');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
-    const confirmPasswordInput = document.getElementById('confirmPassword');
-    const termsCheckbox = document.getElementById('terms');
     const submitBtn = document.getElementById('registerBtn');
     const btnLoading = document.getElementById('btnLoading');
     const btnText = document.getElementById('btnText');
     const successMessage = document.getElementById('successMessage');
 
-    // Password toggle functionality
     const passwordToggle = document.getElementById('passwordToggle');
-    const confirmPasswordToggle = document.getElementById('confirmPasswordToggle');
 
     passwordToggle.addEventListener('click', () => {
         togglePasswordVisibility(passwordInput, passwordToggle);
     });
 
-    confirmPasswordToggle.addEventListener('click', () => {
-        togglePasswordVisibility(confirmPasswordInput, confirmPasswordToggle);
-    });
+    // confirmPasswordToggle.addEventListener('click', () => {
+    //     togglePasswordVisibility(confirmPasswordInput, confirmPasswordToggle);
+    // });
 
     function togglePasswordVisibility(input, toggle) {
         if (input.type === 'password') {
@@ -68,12 +63,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const input = document.getElementById(inputId);
         const errorElement = document.getElementById(inputId + 'Error');
 
-        input.classList.remove('error');
-        errorElement.classList.remove('show');
+    if (input) input.classList.remove('error');
+    if (errorElement) errorElement.classList.remove('show');
     }
 
     function clearAllErrors() {
-        const inputs = ['fullName', 'email', 'password', 'confirmPassword'];
+        const inputs = ['fullName', 'email', 'password'];
         inputs.forEach(clearError);
     }
 
@@ -114,73 +109,61 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // Check confirm password if it has a value
-        if (confirmPasswordInput.value !== '') {
-            if (this.value === confirmPasswordInput.value) {
-                clearError('confirmPassword');
-            } else {
-                showError('confirmPassword', 'Passwords do not match');
-            }
-        }
+        // if (confirmPasswordInput.value !== '') {
+        //     if (this.value === confirmPasswordInput.value) {
+        //         clearError('confirmPassword');
+        //     } else {
+        //         showError('confirmPassword', 'Passwords do not match');
+        //     }
+        // }
     });
 
-    confirmPasswordInput.addEventListener('input', function () {
-        if (this.value !== '') {
-            if (this.value === passwordInput.value) {
-                clearError('confirmPassword');
-            } else {
-                showError('confirmPassword', 'Passwords do not match');
-            }
-        } else {
-            clearError('confirmPassword');
-        }
-    });
+    // confirmPasswordInput.addEventListener('input', function () {
+    //     if (this.value !== '') {
+    //         if (this.value === passwordInput.value) {
+    //             clearError('confirmPassword');
+    //         } else {
+    //             showError('confirmPassword', 'Passwords do not match');
+    //         }
+    //     } else {
+    //         clearError('confirmPassword');
+    //     }
+    // });
 
     // Form submission
-    form.addEventListener('submit', function (e) {
+    form.addEventListener('submit', async function (e) {
         e.preventDefault();
 
         clearAllErrors();
         let isValid = true;
+        const name = fullNameInput.value.trim();
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
 
         // Validate full name
-        if (!fullNameInput.value.trim()) {
+        if (!name) {
             showError('fullName', 'Full name is required');
             isValid = false;
-        } else if (!validateFullName(fullNameInput.value)) {
+        } else if (!validateFullName(name)) {
             showError('fullName', 'Please enter a valid name (2-50 characters, letters only)');
             isValid = false;
         }
 
         // Validate email
-        if (!emailInput.value.trim()) {
+        if (!email) {
             showError('email', 'Email address is required');
             isValid = false;
-        } else if (!validateEmail(emailInput.value)) {
+        } else if (!validateEmail(email)) {
             showError('email', 'Please enter a valid email address');
             isValid = false;
         }
 
         // Validate password
-        if (!passwordInput.value) {
+        if (!password) {
             showError('password', 'Password is required');
             isValid = false;
-        } else if (!validatePassword(passwordInput.value)) {
+        } else if (!validatePassword(password)) {
             showError('password', 'Password must be at least 8 characters with uppercase, lowercase, and number');
-            isValid = false;
-        }
-
-        // Validate confirm password
-        if (!confirmPasswordInput.value) {
-            showError('confirmPassword', 'Please confirm your password');
-            isValid = false;
-        } else if (passwordInput.value !== confirmPasswordInput.value) {
-            showError('confirmPassword', 'Passwords do not match');
-            isValid = false;
-        }
-
-        // Check terms checkbox
-        if (!termsCheckbox.checked) {
-            alert('Please accept the Terms of Service and Privacy Policy');
             isValid = false;
         }
 
@@ -190,32 +173,57 @@ document.addEventListener('DOMContentLoaded', function () {
             btnLoading.style.display = 'inline-block';
             btnText.textContent = 'Creating Account...';
 
-            // Simulate API call
-            setTimeout(() => {
-                // Hide loading state
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        password
+                    })
+                });
+
+                const result = await res.json();
+
+                // Stop loading
                 submitBtn.disabled = false;
                 btnLoading.style.display = 'none';
                 btnText.textContent = 'Create Account';
 
-                // Show success message
+                if (!res.ok) {
+                    // Show error message
+                    if (result.message) {
+                        showError('server', result.message);
+                    } else {
+                        showError('server', 'Registration failed. Try again.');
+                    }
+                    return;
+                }
+
+                // ✅ Success
                 successMessage.classList.add('show');
                 form.reset();
 
-                // In a real app, you would redirect to login or dashboard
-                console.log('Registration successful!', {
-                    fullName: fullNameInput.value,
-                    email: emailInput.value,
-                    password: passwordInput.value
-                });
+                console.log('Registration successful!', result);
 
-                // Hide success message after 5 seconds
                 setTimeout(() => {
                     successMessage.classList.remove('show');
-                }, 5000);
-            }, 2000);
+                    if (returnedURL) {
+                        window.location.href = returnedURL;
+                    }
+                }, 4000);
+            } catch (err) {
+                console.error('Error:', err);
+                submitBtn.disabled = false;
+                btnLoading.style.display = 'none';
+                btnText.textContent = 'Create Account';
+                showError('server', 'Something went wrong. Please try again.');
+            }
         }
     });
-
     // Add smooth focus effects
     const inputs = document.querySelectorAll('.form-input');
     inputs.forEach(input => {
