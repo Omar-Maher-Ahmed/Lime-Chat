@@ -178,7 +178,7 @@ socket.on('roomMessage', (data) => {
 
 // Typing events
 socket.on('userTyping', (data) => {
-    handleTypingIndicator(data);
+        handleTypingIndicator(data);
 });
 
 function joinRoom() {
@@ -274,7 +274,7 @@ function updateConnectionStatus(status, color) {
 function stopTyping() {
     if (isTyping) {
         isTyping = false;
-        socket.emit('typing', { isTyping: false, username: user.name });
+        socket.emit('typing', { isTyping: false, username: user.name, room: roomId });
     }
     typingIndicator.style.display = 'none';
 }
@@ -297,7 +297,7 @@ function handleTyping() {
     if (!isTyping) {
         isTyping = true;
         typingIndicator.style.display = 'block';
-        socket.emit('typing', { isTyping: true, username: user.name });
+        socket.emit('typing', { isTyping: true, username: user.name, room: roomId });
     }
 
     clearTimeout(typingTimer);
