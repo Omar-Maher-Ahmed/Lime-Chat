@@ -10,6 +10,7 @@ const socket = io(WS_BASE_URL, {
 
 const token = localStorage.getItem("token");
 let user = {};
+let roomData = {}
 
 if (token) {
     try {
@@ -43,8 +44,6 @@ function showError(message) {
     document.body.appendChild(errorDiv);
     setTimeout(() => errorDiv.remove(), 5000);
 }
-
-
 
 async function fetchRoomData() {
     try {
@@ -93,7 +92,6 @@ async function me() {
     userData.innerHTML = user.name + " " + user.email;
 }
 
-
 // Render messages
 function renderMessages(messages) {
     chatMessagesElement.innerHTML = '';
@@ -126,7 +124,7 @@ function renderMessages(messages) {
 }
 
 async function loadRoomData() {
-    const roomData = await fetchRoomData();
+    roomData = await fetchRoomData();
     mockBackendResponse = roomData;
 
     if (roomData) {
@@ -168,15 +166,17 @@ socket.on('connect_error', (error) => {
 // Message events
 socket.on('message', (data) => {
     addMessage(data, data.userId === socket.id);
+    // addNewMessageWithAnimation(data);
 });
 
 socket.on('roomMessage', (data) => {
-    addRoomMessage(data, data.userId === socket.id);
+    // addRoomMessage(data, data.userId === socket.id);
+    addNewMessageWithAnimation(data);
 });
 
 // Typing events
 socket.on('userTyping', (data) => {
-        handleTypingIndicator(data);
+    handleTypingIndicator(data);
 });
 
 function joinRoom() {
@@ -215,6 +215,89 @@ function addMessage(data, isOwnMessage) {
     chatMessagesElement.appendChild(messageDiv);
     scrollToBottom();
 }
+
+function findParticipantById(participantId) {
+    return roomData?.participants?.find(p => p._id === participantId)?.name || "Unknown";
+}
+
+function addNewMessage(message) {
+    console.log(message);
+
+    // If this is the first message, clear the "no messages" placeholder
+    if (chatMessagesElement.innerHTML.includes('No messages yet')) {
+        chatMessagesElement.innerHTML = '';
+    }
+
+    const messageBubble = document.createElement('div');
+    messageBubble.classList.add('message-bubble');
+
+    const isSentByCurrentUser = message.sender._id === user._id;
+    messageBubble.classList.add(isSentByCurrentUser ? 'message-sent' : 'message-received');
+
+    if (!isSentByCurrentUser) {
+        const senderName = document.createElement('div');
+        senderName.classList.add('message-sender-name');
+        senderName.textContent = findParticipantById(message.sender);
+        messageBubble.appendChild(senderName);
+    }
+
+    const messageContent = document.createElement('div');
+    messageContent.textContent = message.content;
+    messageBubble.appendChild(messageContent);
+
+    // Add the message to the chat
+    chatMessagesElement.appendChild(messageBubble);
+
+    // Scroll to bottom to show the new message
+    chatMessagesElement.scrollTop = chatMessagesElement.scrollHeight;
+}
+
+// Alternative version with animation
+function addNewMessageWithAnimation(message) {
+    console.log(message);
+
+    // If this is the first message, clear the "no messages" placeholder
+    if (chatMessagesElement.innerHTML.includes('No messages yet')) {
+        chatMessagesElement.innerHTML = '';
+    }
+
+    const messageBubble = document.createElement('div');
+    messageBubble.classList.add('message-bubble');
+
+    const isSentByCurrentUser = message.sender === user._id;
+    messageBubble.classList.add(isSentByCurrentUser ? 'message-sent' : 'message-received');
+
+    if (!isSentByCurrentUser) {
+        const senderName = document.createElement('div');
+        senderName.classList.add('message-sender-name');
+        senderName.textContent = findParticipantById(message.sender);
+        messageBubble.appendChild(senderName);
+    }
+
+    const messageContent = document.createElement('div');
+    messageContent.textContent = message.message;
+    messageBubble.appendChild(messageContent);
+
+    // Add fade-in animation
+    messageBubble.style.opacity = '0';
+    messageBubble.style.transform = 'translateY(20px)';
+    messageBubble.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+
+    chatMessagesElement.appendChild(messageBubble);
+
+    // Trigger animation
+    setTimeout(() => {
+        messageBubble.style.opacity = '1';
+        messageBubble.style.transform = 'translateY(0)';
+    }, 10);
+
+    // Scroll to bottom to show the new message
+    chatMessagesElement.scrollTop = chatMessagesElement.scrollHeight;
+}
+
+// Usage examples:
+// addNewMessage(newMessage);
+// addNewMessageWithAnimation(newMessage);
 
 function addRoomMessage(data, isOwnMessage) {
     const messageDiv = document.createElement('div');
@@ -276,9 +359,6 @@ function stopTyping() {
     }
     typingIndicator.style.display = 'none';
 }
-
-
-
 
 loadRoomData();
 // });
